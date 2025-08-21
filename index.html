@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classificador de Mensagens</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="bg-gray-100 dark:bg-gray-900 flex items-center justify-center min-h-screen">
+    <div class="w-full max-w-md mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
+        <h1 class="text-3xl font-bold text-center text-gray-800 dark:text-white mb-2">Classificador de Mensagens</h1>
+        <p class="text-center text-gray-500 dark:text-gray-400 mb-6">Digite uma mensagem para classificá-la como
+            Produtiva ou Improdutiva.</p>
+
+        <!-- Text area for user input -->
+        <textarea id="message-input"
+            class="w-full h-32 p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:outline-none transition duration-200"
+            placeholder="ex: 'Lembrete: Reunião do projeto às 15h hoje.'"></textarea>
+
+        <!-- Classification button -->
+        <button id="classify-btn"
+            class="w-full mt-4 bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center">
+            <span id="button-text">Classificar</span>
+            <div id="loader"
+                class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-6 w-6 ml-3 hidden"></div>
+        </button>
+
+        <!-- Area to display the result -->
+        <div id="result-output"
+            class="mt-6 text-center text-lg font-medium text-gray-700 dark:text-gray-300 min-h-[30px]">
+            <!-- Status messages will be shown here -->
+        </div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+
+</html>
