@@ -38,7 +38,7 @@ export async function initializeModel() {
     }
 }
 
-function suggestReply(msg) {
+export function suggestReply(msg) {
     msg = msg.toLowerCase();
     if (/cronograma|agenda|reuniao|chamada/.test(msg)) return "Vou verificar a agenda e confirmar.";
     if (/relatorio|documento|feedback/.test(msg)) return "Vou revisar e fornecer feedback.";

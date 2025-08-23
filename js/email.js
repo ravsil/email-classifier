@@ -1,5 +1,5 @@
-import { classifyMessage } from "./model.js";
-import { renderEmails, updateStatus } from "./ui.js"
+import { classifyMessage, suggestReply } from "./model.js";
+import { renderEmails, updateStatus, getActiveTab } from "./ui.js"
 
 const dropArea = document.getElementById('dropArea');
 const statusEl = document.getElementById('status');
@@ -251,12 +251,27 @@ async function buildEmail(lines) {
     const fromMatch = unfolded.match(/^From:\s*(.*)$/mi);
     const dateMatch = unfolded.match(/^Date:\s*(.*)$/mi);
     let s = decodeMimeEncodedStr(subjectMatch[1])
+    let b = cleanEmailBody(bodyPart);
     return {
         id: `email-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         subject: subjectMatch ? s : 'Sem Assunto',
         from: fromMatch ? decodeMimeEncodedStr(fromMatch[1]) : 'Desconhecido',
         date: dateMatch ? dateMatch[1] : 'Sem Data',
-        body: cleanEmailBody(bodyPart),
-        category: await classifyMessage(s)
+        body: b,
+        category: await classifyMessage(s),
+        reply: suggestReply(b)
     };
 }
+
+window.moveEmail = function (event, id) {
+    event.stopPropagation();
+    let from = getActiveTab() === 'productive' ? productiveEmails : unproductiveEmails;
+    let to = getActiveTab() === 'productive' ? unproductiveEmails : productiveEmails;
+    const idx = from.findIndex(e => e.id === id);
+    if (idx > -1) {
+        const item = from.splice(idx, 1)[0];
+        item.category = getActiveTab() === 'productive' ? 'unproductive' : 'productive';
+        to.push(item);
+        renderEmails();
+    }
+};
