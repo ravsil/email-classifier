@@ -1,69 +1,40 @@
-import { initializeModel, classifyMessage } from "./model.js";
+import { classifyMessage } from "./model.js";
+import { renderEmails, updateStatus } from "./ui.js"
 
-const productiveTab = document.getElementById('productiveTab');
-const unproductiveTab = document.getElementById('unproductiveTab');
 const dropArea = document.getElementById('dropArea');
-const fileInput = document.getElementById('fileInput');
-const emailList = document.getElementById('emailList');
 const statusEl = document.getElementById('status');
+
 
 let productiveEmails = [];
 let unproductiveEmails = [];
-let activeTab = 'productive';
 let parsedCount = 0;
 let parsingDone = false;
 let emailBuffer = [];
 let reader = null;
 let isProcessing = false;
 
-initializeModel();
-productiveTab.addEventListener('click', () => switchTab('productive'));
-unproductiveTab.addEventListener('click', () => switchTab('unproductive'));
-
-dropArea.addEventListener('dragover', (e) => { e.preventDefault(); dropArea.classList.add('border-purple-400', 'bg-gray-700'); });
-dropArea.addEventListener('dragleave', () => { dropArea.classList.remove('border-purple-400', 'bg-gray-700'); });
-dropArea.addEventListener('drop', (e) => {
-    e.preventDefault();
-    dropArea.classList.remove('border-purple-400', 'bg-gray-700');
-    const files = e.dataTransfer.files;
-    if (files.length > 0) handleFile(files[0]);
-});
-fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) handleFile(e.target.files[0]); });
-
-// Infinite scroll functionality
-window.addEventListener('scroll', () => {
-    // Check if we're near the bottom of the page (within 200px)
-    if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
-        // Only load more if we have more emails to process and we're not already processing
-        if ((!parsingDone || emailBuffer.length > 0) && !isProcessing) {
-            processNextBatch();
-        }
-    }
-});
-
-function switchTab(tab) {
-    activeTab = tab;
-    if (tab === 'productive') {
-        productiveTab.classList.add('tab-active');
-        productiveTab.classList.remove('text-gray-400', 'hover:bg-gray-700', 'border-transparent');
-        unproductiveTab.classList.remove('tab-active');
-        unproductiveTab.classList.add('text-gray-400', 'hover:bg-gray-700', 'border-transparent');
-    } else {
-        unproductiveTab.classList.add('tab-active');
-        unproductiveTab.classList.remove('text-gray-400', 'hover:bg-gray-700', 'border-transparent');
-        productiveTab.classList.remove('tab-active');
-        productiveTab.classList.add('text-gray-400', 'hover:bg-gray-700', 'border-transparent');
-    }
-    renderEmails();
+export function hasMore() {
+    return (!parsingDone || emailBuffer.length > 0) && isProcessing;
 }
 
-async function handleFile(file) {
+export function isParsing() {
+    return !parsingDone;
+}
+
+export function getParsedCount() {
+    return parsedCount;
+}
+
+export function getEmails(activeTab) {
+    return activeTab === 'productive' ? productiveEmails : unproductiveEmails;
+}
+
+export async function handleFile(file) {
     if (!file.name.endsWith('.mbox')) return;
     dropArea.style.display = 'none';
     statusEl.classList.remove('hidden');
     statusEl.textContent = 'Preparando...';
 
-    // Reset state
     productiveEmails = [];
     unproductiveEmails = [];
     emailBuffer = [];
@@ -77,7 +48,6 @@ async function handleFile(file) {
 
     reader = stream.getReader();
 
-    // Process first batch
     await processNextBatch();
 }
 
@@ -173,7 +143,7 @@ function cleanEmailBody(body) {
     return cleaned;
 }
 
-async function processNextBatch() {
+export async function processNextBatch() {
     if (isProcessing || !reader) return;
 
     isProcessing = true;
@@ -245,8 +215,25 @@ async function processNextBatch() {
 async function addParsed(emailObj) {
     if (emailObj.category == 'unproductive') unproductiveEmails.push(emailObj);
     else productiveEmails.push(emailObj);
-    console.log(emailObj);
     parsedCount++;
+}
+
+function decodeMimeEncodedStr(str) {
+    return str.replace(/=\?([^?]+)\?([BQ])\?([^?]+)\?=/g, (_, charset, enc, text) => {
+        try {
+            if (enc.toUpperCase() === 'B') {
+                const bin = atob(text);
+                const bytes = new Uint8Array(bin.length);
+                for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+                return new TextDecoder(charset || 'utf-8').decode(bytes);
+            } else {
+                const qp = text.replace(/_/g, ' ').replace(/=([0-9A-F]{2})/gi, (_, h) => String.fromCharCode(parseInt(h, 16)));
+                const bytes = new Uint8Array(qp.length);
+                for (let i = 0; i < qp.length; i++) bytes[i] = qp.charCodeAt(i);
+                return new TextDecoder(charset || 'utf-8').decode(bytes);
+            }
+        } catch { return str; }
+    });
 }
 
 async function buildEmail(lines) {
@@ -272,99 +259,4 @@ async function buildEmail(lines) {
         body: cleanEmailBody(bodyPart),
         category: await classifyMessage(s)
     };
-}
-
-function decodeMimeEncodedStr(str) {
-    return str.replace(/=\?([^?]+)\?([BQ])\?([^?]+)\?=/g, (_, charset, enc, text) => {
-        try {
-            if (enc.toUpperCase() === 'B') {
-                const bin = atob(text);
-                const bytes = new Uint8Array(bin.length);
-                for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-                return new TextDecoder(charset || 'utf-8').decode(bytes);
-            } else {
-                const qp = text.replace(/_/g, ' ').replace(/=([0-9A-F]{2})/gi, (_, h) => String.fromCharCode(parseInt(h, 16)));
-                const bytes = new Uint8Array(qp.length);
-                for (let i = 0; i < qp.length; i++) bytes[i] = qp.charCodeAt(i);
-                return new TextDecoder(charset || 'utf-8').decode(bytes);
-            }
-        } catch { return str; }
-    });
-}
-
-function renderEmails() {
-    emailList.innerHTML = '';
-    const list = activeTab === 'productive' ? productiveEmails : unproductiveEmails;
-
-    const frag = document.createDocumentFragment();
-    list.forEach(email => {
-        const emailElement = document.createElement('div');
-        emailElement.className = 'email-item border-b border-gray-700 last:border-b-0';
-        emailElement.innerHTML = `
-            <div class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-700/50">
-                <div class="flex-grow min-w-0" onclick="toggleEmailContent('${email.id}')">
-                    <p class="font-medium text-gray-100 truncate">${email.from}</p>
-                    <p class="text-sm text-gray-400 truncate">${email.subject}</p>
-                </div>
-                <button class="move-btn bg-purple-600 text-white text-xs font-bold py-1 px-3 rounded-full hover:bg-purple-700 ml-4" onclick="moveEmail(event, '${email.id}')">
-                    Mover
-                </button>
-            </div>
-            <div id="${email.id}" class="email-content px-4 pb-4">
-                <div class="border-t border-gray-700 pt-4">
-                    <p class="text-sm text-gray-400 mb-4"><strong>Data:</strong> ${email.date}</p>
-                    <pre class="whitespace-pre-wrap text-sm text-gray-300">${escapeHTML(email.body)}</pre>
-                </div>
-            </div>
-        `;
-        frag.appendChild(emailElement);
-    });
-    emailList.appendChild(frag);
-
-    // Show loading indicator at bottom if there are more emails to process
-    const hasMore = !parsingDone || emailBuffer.length > 0;
-    if (hasMore && isProcessing) {
-        const loadingElement = document.createElement('div');
-        loadingElement.className = 'p-4 text-center text-gray-400';
-        loadingElement.innerHTML = `
-            <div class="flex items-center justify-center space-x-2">
-                <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-purple-400"></div>
-                <span>Carregando mais e-mails...</span>
-            </div>
-        `;
-        emailList.appendChild(loadingElement);
-    }
-}
-
-function updateStatus() {
-    statusEl.classList.remove('hidden');
-    if (parsingDone) {
-        statusEl.textContent = `Concluído: ${parsedCount} e-mails processados.`;
-    } else {
-        statusEl.textContent = `Processados: ${parsedCount} e-mails.`;
-    }
-}
-
-window.toggleEmailContent = function (id) {
-    const el = document.getElementById(id);
-    if (el) el.classList.toggle('open');
-};
-
-window.moveEmail = function (event, id) {
-    event.stopPropagation();
-    let from = activeTab === 'productive' ? productiveEmails : unproductiveEmails;
-    let to = activeTab === 'productive' ? unproductiveEmails : productiveEmails;
-    const idx = from.findIndex(e => e.id === id);
-    if (idx > -1) {
-        const item = from.splice(idx, 1)[0];
-        item.category = activeTab === 'productive' ? 'unproductive' : 'productive';
-        to.push(item);
-        renderEmails();
-    }
-};
-
-function escapeHTML(str) {
-    const p = document.createElement('p');
-    p.textContent = str || '';
-    return p.innerHTML; // <pre> já preserva quebras
 }

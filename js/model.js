@@ -1,27 +1,8 @@
 import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1';
 import { examples } from "./examples.js";
 
-const messageInput = document.getElementById('message-input');
-const classifyBtn = document.getElementById('classify-btn');
-const resultOutput = document.getElementById('result-output');
-const loader = document.getElementById('loader');
-const buttonText = document.getElementById('button-text');
-const loadingDiv = document.getElementById('loading');
-const mainContent = document.getElementById('mainContent');
-
 let embedder = null;
-
 let exampleEmbeddings = [];
-
-function showLoading() {
-    if (loadingDiv) loadingDiv.classList.remove('hidden');
-    if (mainContent) mainContent.classList.remove('show');
-}
-
-function hideLoading() {
-    if (loadingDiv) loadingDiv.classList.add('hidden');
-    if (mainContent) mainContent.classList.add('show');
-}
 
 function cosineSim(a, b) {
     const dot = a.reduce((sum, v, i) => sum + v * b[i], 0);
@@ -32,7 +13,8 @@ function cosineSim(a, b) {
 
 export async function initializeModel() {
     const loadingText = document.querySelector('.loading-text');
-    showLoading();
+    document.getElementById('loading').classList.remove('hidden');
+    document.getElementById('mainContent').classList.remove('show');
     try {
         embedder = await pipeline('feature-extraction', 'Xenova/paraphrase-multilingual-MiniLM-L12-v2');
         for (let i = 0; i < examples.length; i++) {
@@ -41,11 +23,12 @@ export async function initializeModel() {
             exampleEmbeddings.push({ embedding: out.data, label: ex.label });
             if (loadingText) {
                 loadingText.textContent = `Carregando exemplos ${Math.round(((i + 1) / examples.length) * 100)}%`;
-                // Force DOM update
+                // force DOM update
                 await new Promise(r => setTimeout(r, 10));
             }
         }
-        hideLoading();
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('mainContent').classList.add('show');
     } catch (err) {
         console.error(err);
         if (loadingText) {
