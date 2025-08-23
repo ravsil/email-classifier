@@ -2,41 +2,54 @@
 <html lang="pt-BR">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classificador de Mensagens</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>MBOX Viewer</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css" />
 </head>
 
-<body class="bg-gray-100 dark:bg-gray-900 flex items-center justify-center min-h-screen">
-    <div class="w-full max-w-md mx-auto bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
-        <h1 class="text-3xl font-bold text-center text-gray-800 dark:text-white mb-2">Classificador de Mensagens</h1>
-        <p class="text-center text-gray-500 dark:text-gray-400 mb-6">Digite uma mensagem para classificá-la como
-            Produtiva ou Improdutiva.</p>
+<body class="text-gray-200">
+    <div id="loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Carregando modelo de IA...</div>
+    </div>
 
-        <!-- Text area for user input -->
-        <textarea id="message-input"
-            class="w-full h-32 p-4 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-200 focus:ring-2 focus:ring-blue-500 focus:outline-none transition duration-200"
-            placeholder="ex: 'Lembrete: Reunião do projeto às 15h hoje.'"></textarea>
+    <div id="mainContent">
+        <div class="container mx-auto max-w-7xl p-4">
+            <div class="bg-gray-800 rounded-lg shadow-2xl overflow-hidden">
+                <div class="flex items-center border-b border-gray-700">
+                    <div class="flex flex-grow">
+                        <button id="productiveTab"
+                            class="flex-1 text-center py-3 font-medium border-b-2 tab-active">Produtivo</button>
+                        <button id="unproductiveTab"
+                            class="flex-1 text-center py-3 text-gray-400 font-medium border-b-2 border-transparent hover:bg-gray-700">Improdutivo</button>
+                    </div>
+                </div>
 
-        <!-- Classification button -->
-        <button id="classify-btn"
-            class="w-full mt-4 bg-blue-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center">
-            <span id="button-text">Classificar</span>
-            <div id="loader"
-                class="loader ease-linear rounded-full border-4 border-t-4 border-gray-200 h-6 w-6 ml-3 hidden"></div>
-        </button>
+                <div class="p-2 md:p-4">
+                    <div id="dropArea"
+                        class="border-2 border-dashed border-gray-600 rounded-lg p-12 text-center cursor-pointer hover:border-purple-400 hover:bg-gray-700 transition-colors">
+                        <input type="file" id="fileInput" class="hidden" accept=".mbox" />
+                        <label for="fileInput" class="text-gray-400">clique aqui ou arraste um arquivo .mbox</label>
+                    </div>
 
-        <!-- Area to display the result -->
-        <div id="result-output"
-            class="mt-6 text-center text-lg font-medium text-gray-700 dark:text-gray-300 min-h-[30px]">
-            <!-- Status messages will be shown here -->
+                    <div id="status" class="text-sm text-gray-400 mt-3 hidden"></div>
+
+                    <div id="emailList"></div>
+
+                    <div id="loadMore" class="p-4 text-center hidden">
+                        <button id="loadMoreBtn"
+                            class="bg-purple-600 text-white text-sm font-bold py-2 px-4 rounded hover:bg-purple-700">
+                            Carregar mais
+                        </button>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <script type="module" src="script.js"></script>
+    <script type="module" src="main.js"></script>
 </body>
 
 </html>
