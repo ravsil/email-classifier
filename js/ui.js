@@ -4,6 +4,7 @@ const productiveTab = document.getElementById('productiveTab');
 const unproductiveTab = document.getElementById('unproductiveTab');
 const emailList = document.getElementById('emailList');
 const statusEl = document.getElementById('status');
+const loadingMore = document.getElementById('loadingMore');
 
 let activeTab = 'productive';
 
@@ -93,8 +94,10 @@ export function renderEmails() {
 export function updateStatus() {
     statusEl.classList.remove('hidden');
     if (isParsing()) {
+        loadingMore.classList.remove('hidden');
         statusEl.textContent = `Processados: ${getEmails(activeTab).length} e-mails.`;
     } else {
+        loadingMore.classList.add('hidden');
         statusEl.textContent = `Concluído: ${getEmails(activeTab).length} e-mails processados.`;
     }
 }

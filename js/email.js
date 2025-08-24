@@ -293,12 +293,10 @@ export async function addManualEmail({ from, subject, date, body }) {
 }
 
 reloadBtn.addEventListener('click', async () => {
-    let productiveEmails = JSON.parse(localStorage.getItem('productiveEmails')) || [];
-    let unproductiveEmails = JSON.parse(localStorage.getItem('unproductiveEmails')) || [];
-    const allEmails = [...productiveEmails, ...unproductiveEmails];
-    if (allEmails.length === 0) {
-        return;
-    }
+    document.getElementById('loadingMore').classList.remove('hidden');
+    await new Promise(r => setTimeout(r, 10));
+
+    const allEmails = [...productiveEmails, ...unproductiveEmails]
     const newProductive = [];
     const newUnproductive = [];
     for (const email of allEmails) {

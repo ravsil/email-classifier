@@ -104,3 +104,16 @@ export const examples = [
     { text: "feliz ano novo", "label": "Unproductive" },
     { text: "boas festas para voce e sua familia", "label": "Unproductive" }
 ];
+
+export const replies = [
+    { trigger: /cronograma|agenda|reuniao|chamada/, reply: "Vou verificar a agenda e confirmar." },
+    { trigger: /relatorio|documento|feedback/, reply: "Vou revisar e fornecer feedback." },
+    { trigger: /aprovacao|orcamento|contrato/, reply: "Vou revisar e aprovar se estiver tudo certo." },
+    { trigger: /senha|conta|acesso/, reply: "Vou redefinir e enviar os dados de acesso." },
+    { trigger: /servidor|erro|problema|bug/, reply: "Vou investigar o problema e atualizar você." },
+    { trigger: /confirmar|presenca/, reply: "Confirmo minha presença." },
+    { trigger: /permissao|repositorio|acessos/, reply: "Vou liberar o acesso solicitado." },
+    { trigger: /fatura|pagamento|cobranca/, reply: "Vou confirmar o status do pagamento." },
+    { trigger: /slides|apresentacao/, reply: "Vou revisar os slides e ajustar se necessário." },
+    { trigger: /backup|implantacao|publicacao/, reply: "Vou acompanhar o processo e garantir que ocorra bem." }
+];

@@ -1,5 +1,5 @@
 import { pipeline } from 'https://cdn.jsdelivr.net/npm/@xenova/transformers@2.17.1';
-import { examples } from "./examples.js";
+import { examples, replies } from "./examples.js";
 
 let embedder = null;
 let exampleEmbeddings = [];
@@ -12,14 +12,14 @@ function cosineSim(a, b) {
 }
 
 function generateExamples() {
-    let customExamples = localStorage.getItem("customClassifiers")
+    let customExamples = localStorage.getItem('customClassifiers')
     let type = localStorage.getItem('classifyingType') == 'message'
     let exs = []
     if (customExamples) {
         customExamples = JSON.parse(customExamples);
     }
     for (let c of customExamples || []) {
-        exs.push({ text: (type) ? c.body : c.subject, label: (c.category == 'productive') ? 'Productive' : 'Unproductive' });
+        exs.push({ text: (type) ? standardizeMessage(c.body) : standardizeMessage(c.subject), label: (c.category == 'productive') ? 'Productive' : 'Unproductive' });
     }
     return [...exs, ...examples];
 }
@@ -66,16 +66,20 @@ export async function train(msg) {
 
 export function suggestReply(msg) {
     msg = msg.toLowerCase();
-    if (/cronograma|agenda|reuniao|chamada/.test(msg)) return "Vou verificar a agenda e confirmar.";
-    if (/relatorio|documento|feedback/.test(msg)) return "Vou revisar e fornecer feedback.";
-    if (/aprovacao|orcamento|contrato/.test(msg)) return "Vou revisar e aprovar se estiver tudo certo.";
-    if (/senha|conta|acesso/.test(msg)) return "Vou redefinir e enviar os dados de acesso.";
-    if (/servidor|erro|problema|bug/.test(msg)) return "Vou investigar o problema e atualizar você.";
-    if (/confirmar|presenca/.test(msg)) return "Confirmo minha presença.";
-    if (/permissao|repositorio|acessos/.test(msg)) return "Vou liberar o acesso solicitado.";
-    if (/fatura|pagamento|cobranca/.test(msg)) return "Vou confirmar o status do pagamento.";
-    if (/slides|apresentacao/.test(msg)) return "Vou revisar os slides e ajustar se necessário.";
-    if (/backup|implantacao|publicacao/.test(msg)) return "Vou acompanhar o processo e garantir que ocorra bem.";
+    let customReplies = localStorage.getItem('customReplies')
+    if (customReplies) {
+        customReplies = [...JSON.parse(customReplies), ...replies];
+        for (let r of customReplies) {
+            if (typeof r.trigger == 'string') {
+                r.trigger = new RegExp(r.trigger.replaceAll(' ', '|'));
+            }
+            if (r.trigger.test(standardizeMessage(msg))) return r.reply;
+        }
+    } else {
+        for (let r of replies) {
+            if (r.trigger.test(standardizeMessage(msg))) return r.reply;
+        }
+    }
     return "Entendido, vou retornar em breve.";
 }
 

@@ -23,7 +23,7 @@
                 </a>
                 <h1 class="text-xl font-semibold flex-grow">Configurações</h1>
             </div>
-            <form class="p-6 space-y-6" id="settingsForm">
+            <div class="p-6 space-y-6" id="settingsForm">
                 <div>
                     <label for="classifyingType" class="block text-sm font-medium text-gray-300 mb-1">Classificar
                         por</label>
@@ -41,15 +41,62 @@
                         <span class="ml-2 text-gray-300">Guardar E-mails</span>
                     </label>
                 </div>
+                <div class="flex space-x-2">
+                    <button type="button" id="manageExamplesBtn"
+                        class="flex-1 px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700 font-bold">
+                        Gerenciar Classificadores
+                    </button>
+                    <button type="button" id="manageRepliesBtn"
+                        class="flex-1 px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700 font-bold">
+                        Gerenciar Respostas
+                    </button>
+                </div>
+                <div id="manageRepliesModal"
+                    class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
+                    <div class="bg-gray-800 rounded-lg shadow-2xl p-6 w-full max-w-3xl relative">
+                        <button id="closeRepliesModal"
+                            class="absolute top-2 right-2 text-gray-400 hover:text-white text-2xl">&times;</button>
+                        <h2 class="text-lg font-bold mb-4">Gerenciar Respostas</h2>
+                        <div id="repliesList" class="space-y-4 max-h-96 overflow-y-auto"
+                            style="scrollbar-width: thin;scrollbar-color: #374151 transparent;"></div>
+                        <div class="flex justify-end mt-4 space-x-2">
+                            <button id="addReplyBtn"
+                                class="px-3 py-1 rounded bg-purple-600 text-white hover:bg-purple-700 font-bold">Adicionar
+                                Resposta</button>
+                            <button id="saveRepliesBtn"
+                                class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 font-bold">Salvar
+                                Alterações</button>
+                        </div>
+                    </div>
+                </div>
                 <div>
                     <button type="button" id="clearDataBtn"
                         onclick="localStorage.clear(); alert('Todos os dados foram excluídos.')"
-                        class="px-4 py-2 rounded bg-purple-600 text-white hover:bg-purple-700 font-bold">
+                        class="px-4 py-2 rounded bg-purple-600 text-white hover:bg-purple-700 font-bold w-full mt-2">
                         Excluir dados
                     </button>
                 </div>
-            </form>
+            </div>
+            <div id="manageExamplesModal"
+                class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 hidden">
+                <div class="bg-gray-800 rounded-lg shadow-2xl p-6 w-full max-w-3xl relative">
+                    <button id="closeExamplesModal"
+                        class="absolute top-2 right-2 text-gray-400 hover:text-white text-2xl">&times;</button>
+                    <h2 class="text-lg font-bold mb-4">Gerenciar Classificadores</h2>
+                    <div id="examplesList" class="space-y-4 max-h-96 overflow-y-auto"
+                        style="scrollbar-width: thin;scrollbar-color: #374151 transparent;"></div>
+                    <div class="flex justify-end mt-4 space-x-2">
+                        <button id="addExampleBtn"
+                            class="px-3 py-1 rounded bg-purple-600 text-white hover:bg-purple-700 font-bold">Adicionar
+                            Exemplo</button>
+                        <button id="saveExamplesBtn"
+                            class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 font-bold">Salvar
+                            Alterações</button>
+                    </div>
+                </div>
+            </div>
         </div>
+    </div>
     </div>
 
     <script type="module" src="/js/settings.js"></script>
