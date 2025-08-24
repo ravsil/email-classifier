@@ -274,6 +274,7 @@ async function buildEmail(lines) {
 }
 
 export async function addManualEmail({ from, subject, date, body }) {
+    parsingDone = true
     let c = (localStorage.getItem('classifyingType') == 'message') ? body : subject;
     const category = await classifyMessage(c);
     const reply = suggestReply(body);

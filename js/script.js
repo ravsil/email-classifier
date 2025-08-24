@@ -46,6 +46,7 @@ addEmailForm.addEventListener('submit', async (e) => {
     const body = document.getElementById('addEmailBody').value.trim();
     const date = new Date().toLocaleString('pt-BR');
     await addManualEmail({ from, subject, date, body });
+    dropArea.classList.add('hidden');
     addEmailModal.classList.add('hidden');
     addEmailForm.reset();
     renderEmails();
