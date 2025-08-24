@@ -7,6 +7,7 @@ type.addEventListener('change', () => {
 });
 
 saveEmails.checked = localStorage.getItem('saveEmails') == 'true';
+localStorage.setItem('saveEmails', 'false');
 saveEmails.addEventListener('change', () => {
     localStorage.setItem('saveEmails', saveEmails.checked);
 });

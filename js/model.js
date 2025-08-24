@@ -19,7 +19,7 @@ function generateExamples() {
         customExamples = JSON.parse(customExamples);
     }
     for (let c of customExamples || []) {
-        exs.push({ text: (type) ? c.body : c.subject, label: (c.label == 'productive') ? 'Productive' : 'Unproductive' });
+        exs.push({ text: (type) ? c.body : c.subject, label: (c.category == 'productive') ? 'Productive' : 'Unproductive' });
     }
     return [...exs, ...examples];
 }
@@ -39,11 +39,8 @@ export async function initializeModel() {
             if (loadingText) loadingText.textContent = 'Carregando modelo...';
             embedder = await pipeline('feature-extraction', 'Xenova/paraphrase-multilingual-MiniLM-L12-v2');
             let exs = generateExamples();
-            console.log(exs)
             for (let i = 0; i < exs.length; i++) {
-                const ex = exs[i];
-                const out = await embedder(ex.text, { pooling: 'mean', normalize: true });
-                exampleEmbeddings.push({ embedding: Array.from(out.data), label: ex.label });
+                await train(exs[i])
                 if (loadingText) {
                     loadingText.textContent = `Carregando exemplos ${Math.round(((i + 1) / exs.length) * 100)}%`;
                     await new Promise(r => setTimeout(r, 10));
@@ -60,6 +57,11 @@ export async function initializeModel() {
             loadingText.style.color = '#ef4444';
         }
     }
+}
+
+export async function train(msg) {
+    const out = await embedder(msg.text, { pooling: 'mean', normalize: true });
+    exampleEmbeddings.push({ embedding: Array.from(out.data), label: msg.label });
 }
 
 export function suggestReply(msg) {

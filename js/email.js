@@ -1,9 +1,9 @@
-import { classifyMessage, suggestReply } from "./model.js";
+import { classifyMessage, train, suggestReply } from "./model.js";
 import { renderEmails, updateStatus, getActiveTab } from "./ui.js"
 
 const dropArea = document.getElementById('dropArea');
 const statusEl = document.getElementById('status');
-
+const reloadBtn = document.getElementById('reloadBtn');
 
 let productiveEmails = [];
 let unproductiveEmails = [];
@@ -292,6 +292,31 @@ export async function addManualEmail({ from, subject, date, body }) {
     updateStatus();
 }
 
+reloadBtn.addEventListener('click', async () => {
+    let productiveEmails = JSON.parse(localStorage.getItem('productiveEmails')) || [];
+    let unproductiveEmails = JSON.parse(localStorage.getItem('unproductiveEmails')) || [];
+    const allEmails = [...productiveEmails, ...unproductiveEmails];
+    if (allEmails.length === 0) {
+        return;
+    }
+    const newProductive = [];
+    const newUnproductive = [];
+    for (const email of allEmails) {
+        let c = (localStorage.getItem('classifyingType') == 'message') ? email.body : email.subject;
+        const category = await classifyMessage(c);
+        email.category = category;
+        email.reply = suggestReply(email.body);
+        if (category == 'unproductive') {
+            newUnproductive.push(email);
+        } else {
+            newProductive.push(email);
+        }
+    }
+    localStorage.setItem('productiveEmails', JSON.stringify(newProductive));
+    localStorage.setItem('unproductiveEmails', JSON.stringify(newUnproductive));
+    loadEmails();
+});
+
 window.moveEmail = function (event, id) {
     event.stopPropagation();
     let from = getActiveTab() === 'productive' ? productiveEmails : unproductiveEmails;
@@ -302,10 +327,11 @@ window.moveEmail = function (event, id) {
         item.category = getActiveTab() === 'productive' ? 'unproductive' : 'productive';
         to.push(item);
         renderEmails();
+        updateStatus();
     }
 };
 
-window.addClassifier = function (email, el) {
+window.addClassifier = async function (email, el) {
     let mail;
     let found = false;
     for (let e of [...productiveEmails, ...unproductiveEmails]) {
@@ -331,6 +357,8 @@ window.addClassifier = function (email, el) {
         }
         classifiers.push(mail)
         localStorage.setItem("customClassifiers", JSON.stringify(classifiers))
+        const ex = { text: (localStorage.getItem('classifyingType') == 'message') ? mail.body : mail.subject, label: (mail.category == 'productive') ? 'Productive' : 'Unproductive' }
+        await train(ex);
     } else {
         el.textContent = 'Clique aqui para utilizar esse e-mail como classificador';
 
