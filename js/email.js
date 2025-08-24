@@ -304,3 +304,42 @@ window.moveEmail = function (event, id) {
         renderEmails();
     }
 };
+
+window.addClassifier = function (email, el) {
+    let mail;
+    let found = false;
+    for (let e of [...productiveEmails, ...unproductiveEmails]) {
+        if (e.id === email) {
+            mail = e;
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        console.log("Email não encontrado")
+        return;
+    }
+
+    if (el.textContent == 'Clique aqui para utilizar esse e-mail como classificador') {
+        el.textContent = 'Clique aqui para remover esse e-mail dos classificadores';
+
+        let classifiers = localStorage.getItem("customClassifiers")
+        if (classifiers == null) {
+            classifiers = []
+        } else {
+            classifiers = JSON.parse(classifiers)
+        }
+        classifiers.push(mail)
+        localStorage.setItem("customClassifiers", JSON.stringify(classifiers))
+    } else {
+        el.textContent = 'Clique aqui para utilizar esse e-mail como classificador';
+
+        let classifiers = localStorage.getItem("customClassifiers")
+        if (classifiers) {
+            classifiers = JSON.parse(classifiers)
+            classifiers = classifiers.filter(c => c.id !== mail.id)
+            localStorage.setItem("customClassifiers", JSON.stringify(classifiers))
+        }
+    }
+    localStorage.removeItem('exampleEmbeddings'); // remove from cache
+}

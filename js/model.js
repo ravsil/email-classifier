@@ -3,7 +3,6 @@ import { examples } from "./examples.js";
 
 let embedder = null;
 let exampleEmbeddings = [];
-const CACHE_KEY = 'exampleEmbeddings';
 
 function cosineSim(a, b) {
     const dot = a.reduce((sum, v, i) => sum + v * b[i], 0);
@@ -12,13 +11,26 @@ function cosineSim(a, b) {
     return dot / (normA * normB);
 }
 
+function generateExamples() {
+    let customExamples = localStorage.getItem("customClassifiers")
+    let type = localStorage.getItem('classifyingType') == 'message'
+    let exs = []
+    if (customExamples) {
+        customExamples = JSON.parse(customExamples);
+    }
+    for (let c of customExamples || []) {
+        exs.push({ text: (type) ? c.body : c.subject, label: (c.label == 'productive') ? 'Productive' : 'Unproductive' });
+    }
+    return [...exs, ...examples];
+}
+
 export async function initializeModel() {
     const loadingText = document.querySelector('.loading-text');
     document.getElementById('loading').classList.remove('hidden');
     document.getElementById('mainContent').classList.remove('show');
 
     try {
-        const cachedEmbeddings = localStorage.getItem(CACHE_KEY);
+        const cachedEmbeddings = localStorage.getItem('exampleEmbeddings');
         if (cachedEmbeddings) {
             exampleEmbeddings = JSON.parse(cachedEmbeddings);
             if (loadingText) loadingText.textContent = 'Carregando modelo...';
@@ -26,16 +38,18 @@ export async function initializeModel() {
         } else {
             if (loadingText) loadingText.textContent = 'Carregando modelo...';
             embedder = await pipeline('feature-extraction', 'Xenova/paraphrase-multilingual-MiniLM-L12-v2');
-            for (let i = 0; i < examples.length; i++) {
-                const ex = examples[i];
+            let exs = generateExamples();
+            console.log(exs)
+            for (let i = 0; i < exs.length; i++) {
+                const ex = exs[i];
                 const out = await embedder(ex.text, { pooling: 'mean', normalize: true });
                 exampleEmbeddings.push({ embedding: Array.from(out.data), label: ex.label });
                 if (loadingText) {
-                    loadingText.textContent = `Carregando exemplos ${Math.round(((i + 1) / examples.length) * 100)}%`;
+                    loadingText.textContent = `Carregando exemplos ${Math.round(((i + 1) / exs.length) * 100)}%`;
                     await new Promise(r => setTimeout(r, 10));
                 }
             }
-            localStorage.setItem(CACHE_KEY, JSON.stringify(exampleEmbeddings));
+            localStorage.setItem('exampleEmbeddings', JSON.stringify(exampleEmbeddings));
         }
         document.getElementById('loading').classList.add('hidden');
         document.getElementById('mainContent').classList.add('show');

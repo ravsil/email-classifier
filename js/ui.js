@@ -44,18 +44,18 @@ export function renderEmails() {
         const emailElement = document.createElement('div');
         emailElement.className = 'email-item border-b border-gray-700 last:border-b-0';
         emailElement.innerHTML = `
-            <div class="flex items-center justify-between p-4 cursor-pointer hover:bg-gray-700/50 hover:shadow-[0_0_8px_2px_rgba(168,85,247,0.5)] transition-shadow duration-200" style="border-radius: 0.5rem;">
-                <div class="flex-grow min-w-0" onclick="toggleEmailContent('${email.id}')" style="cursor: pointer;">
-                    <p class="font-medium text-gray-100 truncate">${email.from}</p>
-                    <p class="text-sm text-gray-400 truncate">${email.subject}</p>
+            <div class="flex items-stretch justify-between cursor-pointer hover:bg-gray-700/50 hover:shadow-[0_0_8px_2px_rgba(168,85,247,0.5)] transition-shadow duration-200 rounded-lg overflow-hidden">
+                <div class="flex-grow min-w-0 p-4" onclick="toggleEmailContent('${email.id}')">
+                <p class="font-medium text-gray-100 truncate">${email.from}</p>
+                <p class="text-sm text-gray-400 truncate">${email.subject}</p>
                 </div>
-                <button class="move-btn bg-purple-600 text-white text-xs font-bold py-1 px-3 rounded-full hover:bg-purple-700 ml-4" onclick="moveEmail(event, '${email.id}')" style="cursor: pointer;">
-                    Mover
+                <button class="move-btn bg-purple-600 text-white text-xs font-bold px-4 hover:bg-purple-700" onclick="moveEmail(event, '${email.id}')">
+                Mover
                 </button>
             </div>
             <div id="${email.id}" class="email-content px-4 pb-4">
                 <div class="border-t border-gray-700 pt-4">
-                    <p class="text-sm text-gray-400 mb-4"><strong>Data:</strong> ${email.date}</p>
+                    <p class="text-sm text-gray-400 mb-4"><strong>Data:</strong> ${email.date} | <span class="text-purple-400 cursor-pointer hover:underline" onclick="addClassifier('${email.id}', this);">Clique aqui para utilizar esse e-mail como classificador</span></p>
                     <pre class="whitespace-pre-wrap text-sm text-gray-300">${escapeHTML(email.body)}</pre>
                     ${email.reply ? `
                     <div class="mt-4">
