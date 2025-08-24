@@ -25,6 +25,13 @@
                         <button id="unproductiveTab"
                             class="flex-1 text-center py-3 text-gray-400 font-medium border-b-2 border-transparent hover:bg-gray-700">Improdutivo</button>
                     </div>
+                    <button id="addEmailBtn" title="Adicionar e-mail"
+                        class="text-gray-400 hover:text-white transition-colors duration-300 p-2 mx-2 rounded-full hover:bg-gray-700 focus:outline-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                    </button>
                     <a href="./settings.html"
                         class="text-gray-400 hover:text-white transition-colors duration-300 p-2 mx-2 rounded-full hover:bg-gray-700 focus:outline-none">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
@@ -35,6 +42,49 @@
                                 d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                     </a>
+                    <div id="addEmailModal"
+                        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 hidden">
+                        <div class="bg-gray-800 rounded-lg shadow-2xl p-6 w-full max-w-md relative">
+                            <button id="closeAddEmailModal"
+                                class="absolute top-2 right-2 text-gray-400 hover:text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                            <h2 class="text-lg font-bold mb-4 text-gray-100">Adicionar novo e-mail</h2>
+                            <form id="addEmailForm" class="space-y-4">
+                                <div>
+                                    <label class="block text-sm text-gray-300 mb-1" for="addEmailFrom">Remetente</label>
+                                    <input id="addEmailFrom" name="from" type="text" required
+                                        class="w-full rounded bg-gray-700 text-gray-100 p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        placeholder="Nome ou e-mail do remetente">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-300 mb-1"
+                                        for="addEmailSubject">Assunto</label>
+                                    <input id="addEmailSubject" name="subject" type="text" required
+                                        class="w-full rounded bg-gray-700 text-gray-100 p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        placeholder="Assunto do e-mail">
+                                </div>
+                                <div>
+                                    <label class="block text-sm text-gray-300 mb-1" for="addEmailBody">Conteúdo</label>
+                                    <textarea id="addEmailBody" name="body" required rows="4"
+                                        class="w-full rounded bg-gray-700 text-gray-100 p-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        placeholder="Digite o conteúdo do e-mail"></textarea>
+                                </div>
+                                <div class="flex justify-end space-x-2">
+                                    <button type="button" id="cancelAddEmail"
+                                        class="px-4 py-2 rounded bg-gray-600 text-gray-200 hover:bg-gray-700">Cancelar</button>
+                                    <button type="button" id="loadFromFileModalBtn"
+                                        class="px-4 py-2 rounded bg-blue-600 text-white hover:bg-blue-700 font-bold">Arquivo</button>
+                                    <button type="submit"
+                                        class="px-4 py-2 rounded bg-purple-600 text-white hover:bg-purple-700 font-bold">Adicionar</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="p-2 md:p-4">

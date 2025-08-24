@@ -25,10 +25,6 @@ export function isParsing() {
     return !parsingDone;
 }
 
-export function getParsedCount() {
-    return parsedCount;
-}
-
 export function getEmails(activeTab) {
     return activeTab === 'productive' ? productiveEmails : unproductiveEmails;
 }
@@ -50,8 +46,6 @@ export async function handleFile(file) {
     statusEl.classList.remove('hidden');
     statusEl.textContent = 'Preparando...';
 
-    productiveEmails = [];
-    unproductiveEmails = [];
     emailBuffer = [];
     parsedCount = 0;
     parsingDone = false;
@@ -162,7 +156,7 @@ export async function processNextBatch() {
     if (isProcessing || !reader) return;
 
     isProcessing = true;
-    statusEl.textContent = `Processando e-mails... ${parsedCount} processados`;
+    updateStatus();
 
     const batchSize = 50;
     let processedInBatch = 0;
@@ -277,6 +271,25 @@ async function buildEmail(lines) {
         category: await classifyMessage(c),
         reply: suggestReply(b)
     };
+}
+
+export async function addManualEmail({ from, subject, date, body }) {
+    let c = (localStorage.getItem('classifyingType') == 'message') ? body : subject;
+    const category = await classifyMessage(c);
+    const reply = suggestReply(body);
+    const emailObj = {
+        id: `email-${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        subject: subject || 'Sem Assunto',
+        from: from || 'Desconhecido',
+        date: date || new Date().toLocaleString('pt-BR'),
+        body: body || 'Este e-mail não possui corpo de texto.',
+        category: category,
+        reply: reply
+    };
+    if (category === 'unproductive') unproductiveEmails.push(emailObj);
+    else productiveEmails.push(emailObj);
+    parsedCount++;
+    updateStatus();
 }
 
 window.moveEmail = function (event, id) {

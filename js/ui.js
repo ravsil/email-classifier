@@ -1,4 +1,4 @@
-import { hasMore, isParsing, getParsedCount, getEmails } from "./email.js"
+import { hasMore, isParsing, getEmails } from "./email.js"
 
 const productiveTab = document.getElementById('productiveTab');
 const unproductiveTab = document.getElementById('unproductiveTab');
@@ -25,6 +25,7 @@ export function switchTab(tab) {
         productiveTab.classList.add('text-gray-400', 'hover:bg-gray-700', 'border-transparent');
     }
     renderEmails();
+    updateStatus();
 }
 
 export function renderEmails() {
@@ -92,9 +93,9 @@ export function renderEmails() {
 export function updateStatus() {
     statusEl.classList.remove('hidden');
     if (isParsing()) {
-        statusEl.textContent = `Processados: ${getParsedCount()} e-mails.`;
+        statusEl.textContent = `Processados: ${getEmails(activeTab).length} e-mails.`;
     } else {
-        statusEl.textContent = `Concluído: ${getParsedCount()} e-mails processados.`;
+        statusEl.textContent = `Concluído: ${getEmails(activeTab).length} e-mails processados.`;
     }
 }
 
