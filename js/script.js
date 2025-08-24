@@ -1,6 +1,6 @@
 import { initializeModel } from "./model.js";
 import { switchTab } from "./ui.js"
-import { handleFile, processNextBatch } from "./email.js"
+import { handleFile, processNextBatch, loadEmails, hasMore } from "./email.js"
 
 
 const productiveTab = document.getElementById('productiveTab');
@@ -25,8 +25,17 @@ fileInput.addEventListener('change', (e) => { if (e.target.files.length > 0) han
 
 window.addEventListener('scroll', () => {
     if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
-        if ((!parsingDone || emailBuffer.length > 0) && !isProcessing) {
+        if (hasMore(false)) {
             processNextBatch();
         }
     }
 });
+
+if (localStorage.getItem('saveEmails') == 'false') {
+    localStorage.removeItem('productiveEmails');
+    localStorage.removeItem('unproductiveEmails');
+}
+
+if (localStorage.getItem('productiveEmails') != null && localStorage.getItem('unproductiveEmails') != null) {
+    loadEmails()
+}

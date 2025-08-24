@@ -30,6 +30,13 @@ export function switchTab(tab) {
 export function renderEmails() {
     emailList.innerHTML = '';
     const list = getEmails(activeTab);
+    if (localStorage.getItem('saveEmails') == 'true') {
+        localStorage.setItem('productiveEmails', JSON.stringify(getEmails('productive')));
+        localStorage.setItem('unproductiveEmails', JSON.stringify(getEmails('unproductive')));
+    } else {
+        localStorage.removeItem('productiveEmails');
+        localStorage.removeItem('unproductiveEmails');
+    }
 
     const frag = document.createDocumentFragment();
     list.forEach(email => {

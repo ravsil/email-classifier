@@ -13,8 +13,12 @@ let emailBuffer = [];
 let reader = null;
 let isProcessing = false;
 
-export function hasMore() {
-    return (!parsingDone || emailBuffer.length > 0) && isProcessing;
+export function hasMore(x = true) {
+    if (x) {
+        return (!parsingDone || emailBuffer.length > 0) && isProcessing;
+    } else {
+        return (!parsingDone || emailBuffer.length > 0) && !isProcessing;
+    }
 }
 
 export function isParsing() {
@@ -27,6 +31,17 @@ export function getParsedCount() {
 
 export function getEmails(activeTab) {
     return activeTab === 'productive' ? productiveEmails : unproductiveEmails;
+}
+
+export function loadEmails() {
+    productiveEmails = JSON.parse(localStorage.getItem('productiveEmails')) || [];
+    unproductiveEmails = JSON.parse(localStorage.getItem('unproductiveEmails')) || [];
+    dropArea.style.display = 'none';
+    statusEl.classList.remove('hidden');
+    parsingDone = true;
+    parsedCount = productiveEmails.length + unproductiveEmails.length;
+    updateStatus();
+    renderEmails();
 }
 
 export async function handleFile(file) {
@@ -252,13 +267,14 @@ async function buildEmail(lines) {
     const dateMatch = unfolded.match(/^Date:\s*(.*)$/mi);
     let s = decodeMimeEncodedStr(subjectMatch[1])
     let b = cleanEmailBody(bodyPart);
+    let c = (localStorage.getItem('classifyingType') == 'message') ? b : s;
     return {
         id: `email-${Date.now()}-${Math.random().toString(36).slice(2)}`,
         subject: subjectMatch ? s : 'Sem Assunto',
         from: fromMatch ? decodeMimeEncodedStr(fromMatch[1]) : 'Desconhecido',
         date: dateMatch ? dateMatch[1] : 'Sem Data',
         body: b,
-        category: await classifyMessage(s),
+        category: await classifyMessage(c),
         reply: suggestReply(b)
     };
 }
